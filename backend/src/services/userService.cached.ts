@@ -1,4 +1,4 @@
-import { PrismaClient, User } from '@prisma/client';
+import { PrismaClient, User, Role } from '@prisma/client';
 import { redis, CACHE_TTL } from '../infrastructure/cache/redis';
 
 const prisma = new PrismaClient();
@@ -20,19 +20,7 @@ export class UserService {
             cacheKey,
             async () => {
                 const user = await prisma.user.findUnique({
-                    where: { id: userId },
-                    select: {
-                        id: true,
-                        email: true,
-                        fullName: true,
-                        role: true,
-                        avatarUrl: true,
-                        campusId: true,
-                        department: true,
-                        isActive: true,
-                        createdAt: true,
-                        updatedAt: true
-                    }
+                    where: { id: userId }
                 });
                 return user;
             },
@@ -50,18 +38,7 @@ export class UserService {
             cacheKey,
             async () => {
                 const user = await prisma.user.findUnique({
-                    where: { email },
-                    select: {
-                        id: true,
-                        email: true,
-                        fullName: true,
-                        role: true,
-                        password: true, // Needed for authentication
-                        avatarUrl: true,
-                        campusId: true,
-                        department: true,
-                        isActive: true
-                    }
+                    where: { email }
                 });
                 return user;
             },
@@ -72,7 +49,7 @@ export class UserService {
     /**
      * Get users by role with caching
      */
-    async getUsersByRole(role: string, page: number = 1, limit: number = 50) {
+    async getUsersByRole(role: Role, page: number = 1, limit: number = 50) {
         const cacheKey = `users:role:${role}:page:${page}:limit:${limit}`;
 
         return redis.getOrFetch(
