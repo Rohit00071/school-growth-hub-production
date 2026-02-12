@@ -9,6 +9,8 @@ services:
     envVars:
       - key: PORT
         value: 10000
+      - key: NODE_ENV
+        value: production
       - key: USER_SERVICE_URL
         fromService:
           type: web
@@ -18,6 +20,31 @@ services:
         fromService:
           type: web
           name: observation-service
+          property: host
+      - key: GOAL_SERVICE_URL
+        fromService:
+          type: web
+          name: goal-service
+          property: host
+      - key: DOCUMENT_SERVICE_URL
+        fromService:
+          type: web
+          name: document-service
+          property: host
+      - key: NOTIFICATION_SERVICE_URL
+        fromService:
+          type: web
+          name: notification-service
+          property: host
+      - key: ANALYTICS_SERVICE_URL
+        fromService:
+          type: web
+          name: analytics-service
+          property: host
+      - key: MONOLITH_SERVICE_URL
+        fromService:
+          type: web
+          name: backend-monolith
           property: host
 
   # 2. User Service
@@ -29,7 +56,9 @@ services:
     startCommand: npm start
     envVars:
       - key: DATABASE_URL
-        sync: false # Set this in Render Dashboard
+        sync: false
+      - key: JWT_SECRET
+        sync: false
       - key: REDIS_URL
         fromService:
           type: redis
@@ -46,13 +75,110 @@ services:
     envVars:
       - key: DATABASE_URL
         sync: false
+      - key: JWT_SECRET
+        sync: false
+      - key: REDIS_URL
+        fromService:
+          type: redis
+          name: cache-bus
+          property: connectionString
 
-  # 4. Redis (Event Bus)
+  # 4. Goal Service
+  - type: web
+    name: goal-service
+    env: node
+    rootDir: services/goal-service
+    buildCommand: npm install && npx prisma generate && npm run build
+    startCommand: npm start
+    envVars:
+      - key: DATABASE_URL
+        sync: false
+      - key: JWT_SECRET
+        sync: false
+      - key: REDIS_URL
+        fromService:
+          type: redis
+          name: cache-bus
+          property: connectionString
+
+  # 5. Document Service
+  - type: web
+    name: document-service
+    env: node
+    rootDir: services/document-service
+    buildCommand: npm install && npx prisma generate && npm run build
+    startCommand: npm start
+    envVars:
+      - key: DATABASE_URL
+        sync: false
+      - key: JWT_SECRET
+        sync: false
+      - key: REDIS_URL
+        fromService:
+          type: redis
+          name: cache-bus
+          property: connectionString
+
+  # 6. Notification Service
+  - type: web
+    name: notification-service
+    env: node
+    rootDir: services/notification-service
+    buildCommand: npm install && npx prisma generate && npm run build
+    startCommand: npm start
+    envVars:
+      - key: DATABASE_URL
+        sync: false
+      - key: JWT_SECRET
+        sync: false
+      - key: REDIS_URL
+        fromService:
+          type: redis
+          name: cache-bus
+          property: connectionString
+
+  # 7. Analytics Service
+  - type: web
+    name: analytics-service
+    env: node
+    rootDir: services/analytics-service
+    buildCommand: npm install && npx prisma generate && npm run build
+    startCommand: npm start
+    envVars:
+      - key: DATABASE_URL
+        sync: false
+      - key: JWT_SECRET
+        sync: false
+      - key: REDIS_URL
+        fromService:
+          type: redis
+          name: cache-bus
+          property: connectionString
+
+  # 8. Backend Monolith (Legacy)
+  - type: web
+    name: backend-monolith
+    env: node
+    rootDir: backend
+    buildCommand: npm install && npx prisma generate && npm run build
+    startCommand: npm start
+    envVars:
+      - key: DATABASE_URL
+        sync: false
+      - key: JWT_SECRET
+        sync: false
+      - key: REDIS_URL
+        fromService:
+          type: redis
+          name: cache-bus
+          property: connectionString
+
+  # 9. Redis (Event Bus)
   - type: redis
     name: cache-bus
-    ipAllowList: [] # Map to services only
+    ipAllowList: []
 
-  # 5. Frontend (Static Site)
+  # 10. Frontend (Static Site)
   - type: web
     name: school-hub-frontend
     env: static
