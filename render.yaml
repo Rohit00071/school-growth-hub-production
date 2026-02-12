@@ -1,0 +1,66 @@
+services:
+  # 1. API Gateway
+  - type: web
+    name: school-hub-gateway
+    env: node
+    rootDir: services/gateway
+    buildCommand: npm install && npm run build
+    startCommand: npm start
+    envVars:
+      - key: PORT
+        value: 10000
+      - key: USER_SERVICE_URL
+        fromService:
+          type: web
+          name: user-service
+          property: host
+      - key: OBSERVATION_SERVICE_URL
+        fromService:
+          type: web
+          name: observation-service
+          property: host
+
+  # 2. User Service
+  - type: web
+    name: user-service
+    env: node
+    rootDir: services/user-service
+    buildCommand: npm install && npx prisma generate && npm run build
+    startCommand: npm start
+    envVars:
+      - key: DATABASE_URL
+        sync: false # Set this in Render Dashboard
+      - key: REDIS_URL
+        fromService:
+          type: redis
+          name: cache-bus
+          property: connectionString
+
+  # 3. Observation Service
+  - type: web
+    name: observation-service
+    env: node
+    rootDir: services/observation-service
+    buildCommand: npm install && npx prisma generate && npm run build
+    startCommand: npm start
+    envVars:
+      - key: DATABASE_URL
+        sync: false
+
+  # 4. Redis (Event Bus)
+  - type: redis
+    name: cache-bus
+    ipAllowList: [] # Map to services only
+
+  # 5. Frontend (Static Site)
+  - type: web
+    name: school-hub-frontend
+    env: static
+    buildCommand: npm install && npm run build
+    publishPath: ./dist
+    envVars:
+      - key: VITE_API_URL
+        fromService:
+          type: web
+          name: school-hub-gateway
+          property: url
