@@ -48,7 +48,7 @@ jobs:
         else
           cd services/${{ matrix.service }}
         fi
-        # Only run test if script exists
-        if npm run | grep -q "test"; then
+        # Only run test if script exists and is not the default error placeholder
+        if npm run | grep -q "\"test\"" && ! grep -q "echo \\\"Error: no test specified\\\"" package.json; then
           npm test
         fi
