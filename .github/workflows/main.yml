@@ -1,0 +1,54 @@
+name: CI
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        service: [user-service, observation-service, goal-service, document-service, notification-service, analytics-service, gateway, backend]
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Use Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+        cache: 'npm'
+
+    - name: Install dependencies
+      run: |
+        if [ "${{ matrix.service }}" = "backend" ]; then
+          cd backend
+        else
+          cd services/${{ matrix.service }}
+        fi
+        npm install
+
+    - name: Build
+      run: |
+        if [ "${{ matrix.service }}" = "backend" ]; then
+          cd backend
+        else
+          cd services/${{ matrix.service }}
+        fi
+        npm run build
+
+    - name: Test
+      run: |
+        if [ "${{ matrix.service }}" = "backend" ]; then
+          cd backend
+        else
+          cd services/${{ matrix.service }}
+        fi
+        # Only run test if script exists
+        if npm run | grep -q "test"; then
+          npm test
+        fi

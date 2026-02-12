@@ -1,6 +1,14 @@
 import { io, Socket } from 'socket.io-client';
 
-const API_URL = import.meta.env.VITE_API_URL?.replace('/api/v1', '') || 'http://localhost:4000';
+const getSocketUrl = () => {
+    const hostname = window.location.hostname;
+    if (hostname.includes('loca.lt')) {
+        return 'https://school-growth-backend-v2.loca.lt';
+    }
+    return import.meta.env.VITE_API_URL?.replace('/api/v1', '') || 'http://localhost:4000';
+};
+
+const API_URL = getSocketUrl();
 
 let socket: Socket;
 

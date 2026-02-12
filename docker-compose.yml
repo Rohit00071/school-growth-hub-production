@@ -1,0 +1,153 @@
+version: '3.8'
+
+services:
+  # Redis Cache & Event Bus
+  redis:
+    image: redis:7-alpine
+    container_name: school-hub-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    restart: unless-stopped
+    networks:
+      - school-hub-network
+
+  # API Gateway
+  gateway:
+    build: ./services/gateway
+    container_name: school-hub-gateway
+    ports:
+      - "12348:12348"
+    depends_on:
+      - user-service
+      - observation-service
+      - redis
+    environment:
+      - PORT=12348
+      - NODE_ENV=${NODE_ENV:-production}
+      - USER_SERVICE_URL=http://user-service:3001
+      - OBSERVATION_SERVICE_URL=http://observation-service:3002
+      - GOAL_SERVICE_URL=http://goal-service:3003
+      - DOCUMENT_SERVICE_URL=http://document-service:3004
+      - NOTIFICATION_SERVICE_URL=http://notification-service:3005
+      - ANALYTICS_SERVICE_URL=http://analytics-service:3006
+      - MONOLITH_SERVICE_URL=http://backend-monolith:4000
+    restart: unless-stopped
+    networks:
+      - school-hub-network
+
+  # User Service
+  user-service:
+    build: ./services/user-service
+    container_name: school-hub-user-service
+    environment:
+      - DATABASE_URL=${DATABASE_URL}
+      - REDIS_URL=redis://redis:6379
+      - JWT_SECRET=${JWT_SECRET}
+      - JWT_EXPIRES_IN=${JWT_EXPIRES_IN:-1d}
+    depends_on:
+      - redis
+    networks:
+      - school-hub-network
+
+  # Observation Service
+  observation-service:
+    build: ./services/observation-service
+    container_name: school-hub-observation-service
+    environment:
+      - DATABASE_URL=${DATABASE_URL}?schema=observation_service
+      - REDIS_URL=redis://redis:6379
+      - JWT_SECRET=${JWT_SECRET}
+    depends_on:
+      - redis
+    networks:
+      - school-hub-network
+
+  # Notification Service
+  notification-service:
+    build: ./services/notification-service
+    container_name: school-hub-notification-service
+    environment:
+      - DATABASE_URL=${DATABASE_URL}?schema=notification_service
+      - REDIS_URL=redis://redis:6379
+      - JWT_SECRET=${JWT_SECRET}
+    depends_on:
+      - redis
+    networks:
+      - school-hub-network
+
+  # Analytics Service
+  analytics-service:
+    build: ./services/analytics-service
+    container_name: school-hub-analytics-service
+    environment:
+      - DATABASE_URL=${DATABASE_URL}?schema=analytics_service
+      - REDIS_URL=redis://redis:6379
+      - JWT_SECRET=${JWT_SECRET}
+    depends_on:
+      - redis
+    networks:
+      - school-hub-network
+
+  # Goal Service
+  goal-service:
+    build: ./services/goal-service
+    container_name: school-hub-goal-service
+    environment:
+      - DATABASE_URL=${DATABASE_URL}?schema=goal_service
+      - REDIS_URL=redis://redis:6379
+      - JWT_SECRET=${JWT_SECRET}
+    depends_on:
+      - redis
+    networks:
+      - school-hub-network
+
+  # Document Service
+  document-service:
+    build: ./services/document-service
+    container_name: school-hub-document-service
+    environment:
+      - DATABASE_URL=${DATABASE_URL}?schema=document_service
+      - REDIS_URL=redis://redis:6379
+      - JWT_SECRET=${JWT_SECRET}
+    depends_on:
+      - redis
+    networks:
+      - school-hub-network
+
+  # Backend Monolith (Legacy)
+  backend-monolith:
+    build: ./backend
+    container_name: school-hub-backend-monolith
+    environment:
+      - DATABASE_URL=${DATABASE_URL}
+      - REDIS_URL=redis://redis:6379
+      - JWT_SECRET=${JWT_SECRET}
+      - PORT=4000
+    depends_on:
+      - redis
+    networks:
+      - school-hub-network
+
+  # Frontend Web App
+  frontend:
+    build:
+      context: .
+      args:
+        - VITE_API_URL=${VITE_API_URL:-http://localhost:12348/api/v1}
+    container_name: school-hub-frontend
+    ports:
+      - "80:80"
+    depends_on:
+      - gateway
+    networks:
+      - school-hub-network
+
+volumes:
+  redis-data:
+
+
+networks:
+  school-hub-network:
+    driver: bridge

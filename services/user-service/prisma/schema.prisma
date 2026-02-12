@@ -1,0 +1,42 @@
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["multiSchema"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+  schemas  = ["user_service"]
+}
+
+enum Role {
+  ADMIN
+  LEADER
+  TEACHER
+  MANAGEMENT
+  SUPERADMIN
+
+  @@schema("user_service")
+}
+
+model User {
+  id            String    @id @default(uuid())
+  email         String    @unique
+  password      String    // Hashed password
+  fullName      String
+  avatarUrl     String?
+  role          Role      @default(TEACHER)
+  campusId      String?
+  department    String?
+  isActive      Boolean   @default(true) // Added field from microservices design
+  lastLoginAt   DateTime? // Added field from microservices design
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  // No relations to other domains in this microservice
+  
+  @@index([email])
+  @@index([role])
+  @@index([campusId])
+  @@schema("user_service")
+}

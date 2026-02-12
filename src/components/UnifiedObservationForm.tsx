@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -133,6 +133,14 @@ export function UnifiedObservationForm({ onSubmit, onCancel, initialData = {}, t
 
     // Internal state uses flattened classroom fields for stability
     const [formData, setFormData] = useState<Partial<Observation> & { block: string; grade: string; section: string }>(() => {
+        const saved = localStorage.getItem('observation_draft');
+        if (saved) {
+            try {
+                return JSON.parse(saved);
+            } catch (e) {
+                console.error('Failed to parse saved draft', e);
+            }
+        }
         const obs = {
             id: Math.random().toString(36).substr(2, 9),
             date: new Date().toISOString().split('T')[0],
@@ -172,6 +180,10 @@ export function UnifiedObservationForm({ onSubmit, onCancel, initialData = {}, t
         };
         return obs as any;
     });
+
+    useEffect(() => {
+        localStorage.setItem('observation_draft', JSON.stringify(formData));
+    }, [formData]);
 
     const updateField = <K extends keyof (Partial<Observation> & { block: string; grade: string; section: string })>(
         field: K,
@@ -323,6 +335,7 @@ export function UnifiedObservationForm({ onSubmit, onCancel, initialData = {}, t
                 }
             };
 
+            localStorage.removeItem('observation_draft');
             onSubmit(finalData);
         }
     };

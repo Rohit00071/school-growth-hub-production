@@ -1,0 +1,66 @@
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["multiSchema"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+  schemas  = ["observation_service", "user_service"]
+}
+
+enum ObservationStatus {
+  DRAFT
+  SUBMITTED
+  REVIEWED
+  COMPLETED
+
+  @@schema("observation_service")
+}
+
+model Observation {
+  id                String            @id @default(uuid())
+  teacherId         String
+  observerId        String
+  date              DateTime
+  domain            String
+  score             Float
+  notes             String?           @db.Text
+  status            ObservationStatus @default(SUBMITTED)
+  actionStep        String?           @db.Text
+  teacherReflection String?           @db.Text
+  discussionMet     Boolean           @default(false)
+  hasReflection     Boolean           @default(false)
+  createdAt         DateTime          @default(now())
+  updatedAt         DateTime          @updatedAt
+  
+  domainRatings     ObservationDomain[]
+  
+  @@index([teacherId, date])
+  @@index([observerId, date])
+  @@index([status])
+  @@schema("observation_service")
+}
+
+model ObservationDomain {
+  id             String      @id @default(uuid())
+  observationId  String
+  domainId       Int
+  title          String
+  rating         String
+  evidence       String?     @db.Text
+  
+  observation    Observation @relation(fields: [observationId], references: [id], onDelete: Cascade)
+
+  @@index([observationId])
+  @@schema("observation_service")
+}
+
+// Minimal User model to reference foreign keys if needed in the same database, 
+// though we usually just use ID strings in microservices.
+model User {
+  id    String @id @default(uuid())
+  email String @unique
+
+  @@schema("user_service")
+}

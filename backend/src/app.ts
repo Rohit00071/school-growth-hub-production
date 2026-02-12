@@ -1,13 +1,17 @@
+
 import express, { Application, Request, Response } from 'express';
+import dotenv from 'dotenv';
+// Initialize environment variables as early as possible
+dotenv.config({ override: true });
+
+import { createProxyMiddleware } from 'http-proxy-middleware';
 import cors from 'cors';
 import helmet from 'helmet';
-import dotenv from 'dotenv';
 import routes from './api/routes';
 import { globalAppErrorHandler } from './api/middlewares/errorHandler';
+import { cacheControl } from './api/middlewares/cacheControl';
 import swaggerUi from 'swagger-ui-express';
 import swaggerJsdoc from 'swagger-jsdoc';
-
-dotenv.config();
 
 const app: Application = express();
 
@@ -20,15 +24,21 @@ app.use(cors({
         'http://127.0.0.1:8080',
         'http://localhost:5173',
         'http://localhost:3000',
-        'https://brave-aliens-sleep.loca.lt',
-        'https://sad-days-knock.loca.lt',
-        'https://tough-hands-refuse.loca.lt',
-        /\.loca\.lt$/  // Allow all localtunnel subdomains
+        /\.loca\.lt$/
     ],
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization', 'Bypass-Tunnel-Reminder']
 }));
+
+// Microservices Proxy (Must be before body parsers)
+app.use(
+    ['/api/v1/auth', '/api/v1/users'],
+    createProxyMiddleware({
+        target: 'http://localhost:3001',
+        changeOrigin: true
+    })
+);
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -48,6 +58,9 @@ const swaggerOptions = {
 };
 const swaggerSpec = swaggerJsdoc(swaggerOptions);
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+
+// Cache Control
+app.use(cacheControl);
 
 // API Routes
 app.use('/api/v1', routes);

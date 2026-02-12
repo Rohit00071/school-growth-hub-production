@@ -4,6 +4,8 @@ import bcrypt from 'bcryptjs';
 import prisma from '../../infrastructure/database/prisma';
 import { AppError } from '../../infrastructure/utils/AppError';
 import { loginSchema } from '../../core/models/schemas';
+import { userService } from '../../services/userService.cached';
+import { redis, CACHE_TTL } from '../../infrastructure/cache/redis';
 
 const signToken = (id: string, role: string) => {
     return jwt.sign({ id, role }, (process.env.JWT_SECRET || 'secret') as Secret, {
@@ -20,8 +22,8 @@ export const login = async (req: Request, res: Response, next: NextFunction) => 
 
         const { email, password } = result.data;
 
-        // 1) Find user
-        const user = await prisma.user.findUnique({ where: { email } });
+        // 1) Find user (using cache for better performance)
+        const user = await userService.getUserByEmail(email);
 
         if (!user || !(await bcrypt.compare(password, user.password))) {
             return next(new AppError('Incorrect email or password', 401));

@@ -9,11 +9,11 @@ const getApiUrl = () => {
 
     // If accessed via localtunnel, use the tunnel backend
     if (hostname.includes('loca.lt')) {
-        return 'https://tough-hands-refuse.loca.lt/api/v1';
+        return 'https://school-growth-backend-v2.loca.lt/api/v1';
     }
 
     // Otherwise use localhost or env variable
-    return import.meta.env.VITE_API_URL || 'http://localhost:4000/api/v1';
+    return import.meta.env.VITE_API_URL || 'http://localhost:12348/api/v1';
 };
 
 const API_URL = getApiUrl();

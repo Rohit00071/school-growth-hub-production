@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import { AppError } from '../../infrastructure/utils/AppError';
+import { logger } from '../../infrastructure/utils/logger';
 
 export const globalAppErrorHandler = (
     err: any,
@@ -25,7 +26,9 @@ export const globalAppErrorHandler = (
                 message: err.message,
             });
         } else {
-            console.error('ERROR 💥', err);
+            // Log the error
+            logger.error('ERROR 💥', err);
+
             res.status(500).json({
                 status: 'error',
                 message: 'Something went very wrong!',
