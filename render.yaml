@@ -186,7 +186,4 @@ services:
     staticPublishPath: ./dist
     envVars:
       - key: VITE_API_URL
-        fromService:
-          type: web
-          name: school-hub-gateway
-          property: url
+        sync: false # Set this to your Gateway URL + /api/v1 after deployment
