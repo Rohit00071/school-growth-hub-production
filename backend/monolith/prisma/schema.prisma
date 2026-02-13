@@ -1,0 +1,216 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  ADMIN
+  LEADER
+  TEACHER
+  MANAGEMENT
+  SUPERADMIN
+}
+
+enum ObservationStatus {
+  DRAFT
+  SUBMITTED
+  REVIEWED
+  COMPLETED
+}
+
+enum GoalStatus {
+  IN_PROGRESS
+  NEAR_COMPLETION
+  COMPLETED
+  ON_HOLD
+}
+
+enum AcknowledgementStatus {
+  PENDING
+  VIEWED
+  ACKNOWLEDGED
+}
+
+model User {
+  id            String    @id @default(uuid())
+  email         String    @unique
+  password      String
+  fullName      String
+  avatarUrl     String?
+  role          Role      @default(TEACHER)
+  campusId      String?
+  department    String?
+  isActive      Boolean   @default(true)
+  lastLoginAt   DateTime?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  observations  Observation[] @relation("TeacherObservations")
+  observed      Observation[] @relation("ObserverObservations")
+  goals         Goal[]
+  acknowledgements DocumentAcknowledgement[]
+  createdDocuments Document[] @relation("CreatedDocuments")
+  registrations Registration[]
+  pdHours       PDHour[]
+
+  @@index([email])
+  @@index([role])
+  @@index([campusId])
+}
+
+model UserSession {
+  id           String   @id @default(uuid())
+  userId       String
+  token        String   @unique
+  refreshToken String   @unique
+  expiresAt    DateTime
+  ipAddress    String?
+  userAgent    String?
+  createdAt    DateTime @default(now())
+
+  @@index([userId])
+  @@index([token])
+}
+
+model Observation {
+  id                String            @id @default(uuid())
+  teacherId         String
+  observerId        String
+  date              DateTime
+  domain            String
+  score             Float
+  notes             String?           @db.Text
+  status            ObservationStatus @default(SUBMITTED)
+  actionStep        String?           @db.Text
+  teacherReflection String?           @db.Text
+  discussionMet     Boolean           @default(false)
+  hasReflection     Boolean           @default(false)
+  createdAt         DateTime          @default(now())
+  updatedAt         DateTime          @updatedAt
+  
+  teacher           User              @relation("TeacherObservations", fields: [teacherId], references: [id])
+  observer          User              @relation("ObserverObservations", fields: [observerId], references: [id])
+  domainRatings     ObservationDomain[]
+  
+  @@index([teacherId, date])
+  @@index([observerId, date])
+  @@index([status])
+}
+
+model ObservationDomain {
+  id             String      @id @default(uuid())
+  observationId  String
+  domainId       Int
+  title          String
+  rating         String
+  evidence       String?     @db.Text
+  
+  observation    Observation @relation(fields: [observationId], references: [id], onDelete: Cascade)
+
+  @@index([observationId])
+}
+
+model Goal {
+  id                String     @id @default(uuid())
+  teacherId         String
+  title             String
+  description       String?    @db.Text
+  progress          Int        @default(0)
+  dueDate           DateTime
+  status            GoalStatus @default(IN_PROGRESS)
+  isSchoolAligned   Boolean    @default(false)
+  category          String?
+  createdAt         DateTime   @default(now())
+  updatedAt         DateTime   @updatedAt
+  
+  teacher           User       @relation(fields: [teacherId], references: [id])
+
+  @@index([teacherId])
+  @@index([status])
+}
+
+model Document {
+  id                String   @id @default(uuid())
+  title             String
+  description       String?  @db.Text
+  fileUrl           String
+  fileName          String
+  fileSize          Int?
+  version           String   @default("1.0")
+  requiresSignature Boolean  @default(false)
+  createdById       String
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  hash              String?  // SHA256
+  
+  createdBy         User     @relation("CreatedDocuments", fields: [createdById], references: [id])
+  acknowledgements  DocumentAcknowledgement[]
+  
+  @@index([createdById])
+  @@index([createdAt])
+}
+
+model DocumentAcknowledgement {
+  id              String                @id @default(uuid())
+  documentId      String
+  teacherId       String
+  status          AcknowledgementStatus @default(PENDING)
+  viewedAt        DateTime?
+  acknowledgedAt  DateTime?
+  signatureUrl    String?
+  ipAddress       String?
+  userAgent       String?              @db.Text
+  receiptUrl      String?
+  documentHash    String?
+  createdAt       DateTime             @default(now())
+  updatedAt       DateTime             @updatedAt
+  
+  document        Document             @relation(fields: [documentId], references: [id], onDelete: Cascade)
+  teacher         User                 @relation(fields: [teacherId], references: [id])
+
+  @@unique([documentId, teacherId])
+  @@index([teacherId])
+  @@index([documentId])
+}
+
+model TrainingEvent {
+  id          String   @id @default(uuid())
+  title       String
+  description String?  @db.Text
+  date        DateTime
+  location    String?
+  status      String   @default("UPCOMING")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  registrations Registration[]
+}
+
+model Registration {
+  id        String   @id @default(uuid())
+  userId    String
+  eventId   String
+  status    String   @default("REGISTERED")
+  createdAt DateTime @default(now())
+
+  user      User     @relation(fields: [userId], references: [id])
+  event     TrainingEvent @relation(fields: [eventId], references: [id])
+
+  @@unique([userId, eventId])
+}
+
+model PDHour {
+  id        String   @id @default(uuid())
+  userId    String
+  hours     Float
+  date      DateTime
+  type      String
+  status    String   @default("PENDING")
+  createdAt DateTime @default(now())
+
+  user      User     @relation(fields: [userId], references: [id])
+}

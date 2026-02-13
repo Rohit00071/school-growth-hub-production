@@ -1,0 +1,46 @@
+﻿C:\games\New folder\solve error\school-growth-hub-main\backend\monolith\scripts\apply-indexes.ts:    `CREATE INDEX IF NOT EXISTS idx_goals_school_aligned ON "Goal"("isSchoolAligned", status) WHERE "isSchoolAligned" = true`,
+C:\games\New folder\solve error\school-growth-hub-main\backend\monolith\src\seed.ts:        { name: 'Teacher One', email: 'teacher1.btmlayout@pdi.com', pass: 'Teacher1@123', role: 'TEACHER' },
+C:\games\New folder\solve error\school-growth-hub-main\backend\monolith\src\api\controllers\authController.ts:        // 1) Find user (using cache for better performance)
+C:\games\New folder\solve error\school-growth-hub-main\backend\monolith\src\api\controllers\goalController.ts:                page: result.page,
+C:\games\New folder\solve error\school-growth-hub-main\backend\monolith\src\api\controllers\observationController.ts:                results: result.observations.length,
+C:\games\New folder\solve error\school-growth-hub-main\backend\monolith\src\api\middlewares\auth.ts:            return next(new AppError('You are not logged in. Please log in to get access.', 401));
+C:\games\New folder\solve error\school-growth-hub-main\backend\monolith\src\api\middlewares\errorHandler.ts:                status: err.status,
+C:\games\New folder\solve error\school-growth-hub-main\backend\monolith\src\core\models\schemas.ts:    dueDate: z.string(),
+C:\games\New folder\solve error\school-growth-hub-main\backend\monolith\src\infrastructure\database\prisma.ts:            log: [{ emit: 'event', level: 'query' }, { emit: 'stdout', level: 'error' }],
+C:\games\New folder\solve error\school-growth-hub-main\backend\monolith\src\infrastructure\utils\logger.ts:        return JSON.stringify({
+C:\games\New folder\solve error\school-growth-hub-main\backend\monolith\src\services\userService.cached.ts:                return user;
+C:\games\New folder\solve error\school-growth-hub-main\backend\services\analytics-service\src\app.ts:app.use(errorHandler);
+C:\games\New folder\solve error\school-growth-hub-main\backend\services\analytics-service\src\config\prisma.ts:    if (e.duration > 100) {
+C:\games\New folder\solve error\school-growth-hub-main\backend\services\analytics-service\src\middlewares\auth.ts:            email: userEmail
+C:\games\New folder\solve error\school-growth-hub-main\backend\services\document-service\src\app.ts:app.use(errorHandler);
+C:\games\New folder\solve error\school-growth-hub-main\backend\services\document-service\src\config\prisma.ts:    if (e.duration > 100) {
+C:\games\New folder\solve error\school-growth-hub-main\backend\services\document-service\src\controllers\documentController.ts:            res.status(201).json(doc);
+C:\games\New folder\solve error\school-growth-hub-main\backend\services\document-service\src\middlewares\auth.ts:            email: userEmail
+C:\games\New folder\solve error\school-growth-hub-main\backend\services\document-service\src\utils\eventBus.ts:                logger.warn(`[Event] Skip publish to ${channel} - Redis not ready`);
+C:\games\New folder\solve error\school-growth-hub-main\backend\services\gateway\src\index.ts:app.use(helmet());
+C:\games\New folder\solve error\school-growth-hub-main\backend\services\goal-service\src\app.ts:app.use(errorHandler);
+C:\games\New folder\solve error\school-growth-hub-main\backend\services\goal-service\src\config\prisma.ts:    if (e.duration > 100) {
+C:\games\New folder\solve error\school-growth-hub-main\backend\services\goal-service\src\middlewares\auth.ts:            email: userEmail
+C:\games\New folder\solve error\school-growth-hub-main\backend\services\goal-service\src\utils\eventBus.ts:                logger.warn(`[Event] Skip publish to ${channel} - Redis not ready`);
+C:\games\New folder\solve error\school-growth-hub-main\backend\services\notification-service\src\app.ts:app.use(errorHandler);
+C:\games\New folder\solve error\school-growth-hub-main\backend\services\notification-service\src\config\prisma.ts:    if (e.duration > 100) {
+C:\games\New folder\solve error\school-growth-hub-main\backend\services\notification-service\src\middlewares\auth.ts:            email: userEmail
+C:\games\New folder\solve error\school-growth-hub-main\backend\services\notification-service\src\utils\eventBus.ts:                logger.warn(`[Event] Skip publish to ${channel} - Redis not ready`);
+C:\games\New folder\solve error\school-growth-hub-main\backend\services\observation-service\src\app.ts:app.use(errorHandler);
+C:\games\New folder\solve error\school-growth-hub-main\backend\services\observation-service\src\config\prisma.ts:    if (e.duration > 100) {
+C:\games\New folder\solve error\school-growth-hub-main\backend\services\observation-service\src\controllers\observationController.ts:            res.status(200).json({ status: 'success', data: result });
+C:\games\New folder\solve error\school-growth-hub-main\backend\services\observation-service\src\middlewares\auth.ts:            email: userEmail
+C:\games\New folder\solve error\school-growth-hub-main\backend\services\observation-service\src\routes\observationRoutes.ts:export default router;
+C:\games\New folder\solve error\school-growth-hub-main\backend\services\observation-service\src\utils\eventBus.ts:                logger.warn(`[Event] Skip publish to ${channel} - Redis not ready`);
+C:\games\New folder\solve error\school-growth-hub-main\backend\services\user-service\check_user.ts:checkUser();
+C:\games\New folder\solve error\school-growth-hub-main\backend\services\user-service\src\app.ts:app.use(errorHandler);
+C:\games\New folder\solve error\school-growth-hub-main\backend\services\user-service\src\config\prisma.ts:    if (e.duration > 100) {
+C:\games\New folder\solve error\school-growth-hub-main\backend\services\user-service\src\controllers\authController.ts:    campusId: z.string().optional(),
+C:\games\New folder\solve error\school-growth-hub-main\backend\services\user-service\src\controllers\userController.ts:            .reduce((obj, key) => {
+C:\games\New folder\solve error\school-growth-hub-main\backend\services\user-service\src\services\userService.ts:            where: role ? { role: role as any } : undefined,
+C:\games\New folder\solve error\school-growth-hub-main\backend\services\user-service\src\utils\eventBus.ts:                logger.warn(`[Event] Skip publish to ${channel} - Redis not ready`);
+C:\games\New folder\solve error\school-growth-hub-main\frontend\src\hooks\use-toast.ts:  count = (count + 1) % Number.MAX_SAFE_INTEGER;
+C:\games\New folder\solve error\school-growth-hub-main\frontend\src\hooks\useApi.ts:            toast.success('Observation submitted successfully');
+C:\games\New folder\solve error\school-growth-hub-main\frontend\src\lib\api.ts:        'Bypass-Tunnel-Reminder': 'true',
+C:\games\New folder\solve error\school-growth-hub-main\frontend\src\lib\groq.ts:        console.warn("Groq API Key not found. Using mock analysis mode.");
+C:\games\New folder\solve error\school-growth-hub-main\frontend\src\lib\template-utils.ts:        questions: 13,

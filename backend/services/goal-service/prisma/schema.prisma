@@ -1,0 +1,53 @@
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["multiSchema"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+  schemas  = ["goal_service", "user_service"]
+}
+
+enum GoalStatus {
+  ASSIGNED
+  IN_PROGRESS
+  NEAR_COMPLETION
+  COMPLETED
+  ON_HOLD
+  ARCHIVED
+
+  @@schema("goal_service")
+}
+
+model Goal {
+  id                String     @id @default(uuid())
+  teacherId         String
+  teacherName       String?
+  title             String
+  description       String?    @db.Text
+  actionStep        String?    @db.Text
+  progress          Int        @default(0)
+  dueDate           DateTime
+  status            GoalStatus @default(ASSIGNED)
+  isSchoolAligned   Boolean    @default(false)
+  pillar            String?
+  category          String?
+  campus            String?
+  ay                String?
+  assignedBy        String?
+  reflectionCompleted Boolean  @default(false)
+  createdAt         DateTime   @default(now())
+  updatedAt         DateTime   @updatedAt
+  
+  @@index([teacherId])
+  @@index([status])
+  @@schema("goal_service")
+}
+
+model User {
+  id    String @id @default(uuid())
+  email String @unique
+
+  @@schema("user_service")
+}

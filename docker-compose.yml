@@ -15,16 +15,16 @@ services:
 
   # API Gateway
   gateway:
-    build: ./services/gateway
+    build: ./backend/services/gateway
     container_name: school-hub-gateway
     ports:
-      - "12348:12348"
+      - "3000:3000"
     depends_on:
       - user-service
       - observation-service
       - redis
     environment:
-      - PORT=12348
+      - PORT=3000
       - NODE_ENV=${NODE_ENV:-production}
       - USER_SERVICE_URL=http://user-service:3001
       - OBSERVATION_SERVICE_URL=http://observation-service:3002
@@ -39,7 +39,7 @@ services:
 
   # User Service
   user-service:
-    build: ./services/user-service
+    build: ./backend/services/user-service
     container_name: school-hub-user-service
     environment:
       - DATABASE_URL=${DATABASE_URL}
@@ -53,7 +53,7 @@ services:
 
   # Observation Service
   observation-service:
-    build: ./services/observation-service
+    build: ./backend/services/observation-service
     container_name: school-hub-observation-service
     environment:
       - DATABASE_URL=${DATABASE_URL}?schema=observation_service
@@ -66,7 +66,7 @@ services:
 
   # Notification Service
   notification-service:
-    build: ./services/notification-service
+    build: ./backend/services/notification-service
     container_name: school-hub-notification-service
     environment:
       - DATABASE_URL=${DATABASE_URL}?schema=notification_service
@@ -79,7 +79,7 @@ services:
 
   # Analytics Service
   analytics-service:
-    build: ./services/analytics-service
+    build: ./backend/services/analytics-service
     container_name: school-hub-analytics-service
     environment:
       - DATABASE_URL=${DATABASE_URL}?schema=analytics_service
@@ -92,7 +92,7 @@ services:
 
   # Goal Service
   goal-service:
-    build: ./services/goal-service
+    build: ./backend/services/goal-service
     container_name: school-hub-goal-service
     environment:
       - DATABASE_URL=${DATABASE_URL}?schema=goal_service
@@ -105,7 +105,7 @@ services:
 
   # Document Service
   document-service:
-    build: ./services/document-service
+    build: ./backend/services/document-service
     container_name: school-hub-document-service
     environment:
       - DATABASE_URL=${DATABASE_URL}?schema=document_service
@@ -118,7 +118,7 @@ services:
 
   # Backend Monolith (Legacy)
   backend-monolith:
-    build: ./backend
+    build: ./backend/monolith
     container_name: school-hub-backend-monolith
     environment:
       - DATABASE_URL=${DATABASE_URL}
@@ -133,10 +133,11 @@ services:
   # Frontend Web App
   frontend:
     build:
-      context: .
+      context: ./frontend
       args:
-        - VITE_API_URL=${VITE_API_URL:-http://localhost:12348/api/v1}
+        - VITE_API_URL=${VITE_API_URL:-http://localhost:3000/api/v1}
     container_name: school-hub-frontend
+
     ports:
       - "80:80"
     depends_on:

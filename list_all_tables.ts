@@ -1,4 +1,9 @@
 import { PrismaClient } from '@prisma/client';
+import * as dotenv from 'dotenv';
+import path from 'path';
+
+// Load .env from backend/monolith
+dotenv.config({ path: path.join(__dirname, 'backend/monolith/.env') });
 
 const prisma = new PrismaClient();
 

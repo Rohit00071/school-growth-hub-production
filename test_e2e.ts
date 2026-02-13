@@ -1,10 +1,11 @@
 import axios from 'axios';
 
 async function test() {
+    const testEmail = `teacher_${Date.now()}@school.com`;
     try {
         console.log('Testing Registration through Gateway...');
         const regRes = await axios.post('http://localhost:12348/api/v1/auth/register', {
-            email: 'ext_teacher@school.com',
+            email: testEmail,
             password: 'Pass123!',
             fullName: 'Ext Teacher',
             role: 'TEACHER'
@@ -13,15 +14,17 @@ async function test() {
 
         console.log('\nTesting Login through Gateway...');
         const loginRes = await axios.post('http://localhost:12348/api/v1/auth/login', {
-            email: 'ext_teacher@school.com',
+            email: testEmail,
             password: 'Pass123!'
         });
         console.log('✅ Login success:', loginRes.data);
         const token = loginRes.data.token;
-        const teacherId = loginRes.data.user.id;
+        const teacherId = loginRes.data.data.user.id;
 
         console.log('\nTesting Observation through Gateway (New Service)...');
-        const obsRes = await axios.get(`http://localhost:12348/api/v1/observations/teacher/${teacherId}`);
+        const obsRes = await axios.get(`http://localhost:12348/api/v1/observations/teacher/${teacherId}`, {
+            headers: { Authorization: `Bearer ${token}` }
+        });
         console.log('✅ Observation fetch success:', obsRes.data);
 
         console.log('\nTesting Monolith (Health) through Gateway...');
